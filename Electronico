@@ -1,0 +1,28 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.sistemagestionproductos;
+
+/**
+ *
+ * @author Conej
+ */
+public class Electronico extends Producto {
+    public Electronico(int codigo, String nombre, String descripcion, double precioCosto, int altaPrioridad, Condicion condicion) {
+        super(codigo, nombre, descripcion, precioCosto, altaPrioridad, condicion, calcularPrecioVenta(precioCosto, altaPrioridad));
+    }
+
+    private static double calcularPrecioVenta(double precioCosto, int altaPrioridad) {
+        double margen = 0.15;
+        if (altaPrioridad == 1) { // Si es alta prioridad, aumenta margen
+            margen += 0.10;
+        }
+        return precioCosto * (1 + margen);
+    }
+
+    @Override
+    public void calcularPrecioVenta() {
+        
+    }
+}
