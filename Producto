@@ -1,0 +1,54 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.sistemagestionproductos;
+
+/**
+ *
+ * @author Conej
+ */
+abstract class Producto {
+    private int codigo;
+    private String nombre;
+    private String descripcion;
+    private double precioCosto;
+    private double precioVenta;
+    private int altaPrioridad; // 1 = Alta prioridad, 0 = No es alta prioridad
+    private Condicion condicion;
+
+    public Producto(int codigo, String nombre, String descripcion, double precioCosto, int altaPrioridad, Condicion condicion, double precioVenta) {
+        this.codigo = codigo;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.precioCosto = precioCosto;
+        this.altaPrioridad = altaPrioridad;
+        this.condicion = condicion;
+        this.precioVenta = precioVenta; 
+    }
+
+    public abstract void calcularPrecioVenta();
+
+  
+    public int getCodigo() { 
+        return codigo; 
+    }
+    public String getNombre() { 
+        return nombre; 
+    }
+    public String getDescripcion() { 
+        return descripcion; 
+    }
+    public double getPrecioCosto() { 
+        return precioCosto; 
+    }
+    public double getPrecioVenta() { 
+        return precioVenta; 
+    }
+    public int getAltaPrioridad() { 
+        return altaPrioridad; 
+    }
+    public Condicion getCondicion() { 
+        return condicion; 
+    }
+}
