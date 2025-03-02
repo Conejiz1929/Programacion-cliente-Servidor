@@ -1,0 +1,147 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ */
+
+package com.mycompany.sistemagestionproductos;
+
+/**
+ *
+ * @author Conej
+ */
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class SistemaGestionProductos extends JFrame {
+    private ArrayList<Producto> productos = new ArrayList<>();
+    private JTable tablaProductos;
+    private DefaultTableModel modeloTabla;
+    private JSpinner spinnerCodigo;
+    private JTextField campoNombre, campoPrecioCosto;
+    private JTextArea areaDescripcion;
+    private JComboBox<Condicion> comboCondicion;
+    private JRadioButton radioElectronico, radioRopa;
+    private JCheckBox AltaPrioridad;
+
+    public SistemaGestionProductos() {
+        setTitle("Sistema de Gestion de Productos");
+        setSize(900, 900);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        JPanel panelFormulario = new JPanel(new GridLayout(7, 2));
+        panelFormulario.add(new JLabel("Codigo: "));
+        spinnerCodigo = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
+        panelFormulario.add(spinnerCodigo);
+        panelFormulario.add(new JLabel("Nombre: "));
+        campoNombre = new JTextField();
+        panelFormulario.add(campoNombre);
+        panelFormulario.add(new JLabel("Descripcion: "));
+        areaDescripcion = new JTextArea();
+        panelFormulario.add(areaDescripcion);
+        panelFormulario.add(new JLabel("Precio Costo: "));
+        campoPrecioCosto = new JTextField();
+        panelFormulario.add(campoPrecioCosto);
+        panelFormulario.add(new JLabel("Alta Prioridad: "));
+        AltaPrioridad = new JCheckBox();
+        panelFormulario.add(AltaPrioridad);
+        panelFormulario.add(new JLabel("Condicion:"));
+        comboCondicion = new JComboBox<>(Condicion.values());
+        panelFormulario.add(comboCondicion);
+
+        JPanel panelTipo = new JPanel();
+        radioElectronico = new JRadioButton("Electronico");
+        radioRopa = new JRadioButton("Ropa");
+        ButtonGroup grupoTipo = new ButtonGroup();
+        grupoTipo.add(radioElectronico);
+        grupoTipo.add(radioRopa);
+        panelTipo.add(radioElectronico);
+        panelTipo.add(radioRopa);
+
+        JButton btnAgregar = new JButton("Agregar Producto");
+        btnAgregar.addActionListener(e -> agregarProducto());
+
+        modeloTabla = new DefaultTableModel(new String[]{"Codigo", "Nombre", "Precio Venta", "Condicion", "Tipo"}, 0);
+        tablaProductos = new JTable(modeloTabla);
+
+        JButton btnReporte = new JButton("Generar Reporte");
+        btnReporte.addActionListener(e -> generarReporte());
+
+        add(panelFormulario, BorderLayout.NORTH);
+        add(panelTipo, BorderLayout.CENTER);
+        add(btnAgregar, BorderLayout.WEST);
+        add(new JScrollPane(tablaProductos), BorderLayout.SOUTH);
+        add(btnReporte, BorderLayout.EAST);
+    }
+
+    private void agregarProducto() {
+        int codigo = (int) spinnerCodigo.getValue();
+        String nombre = campoNombre.getText();
+        String descripcion = areaDescripcion.getText();
+        double precioCosto = Double.parseDouble(campoPrecioCosto.getText());
+        int altaPrioridad = AltaPrioridad.isSelected() ? 1 : 0;
+        Condicion condicion = (Condicion) comboCondicion.getSelectedItem();
+
+        Producto producto = radioElectronico.isSelected() ?
+            new Electronico(codigo, nombre, descripcion, precioCosto, altaPrioridad, condicion) :
+            new Ropa(codigo, nombre, descripcion, precioCosto, altaPrioridad, condicion);
+
+        productos.add(producto);
+        modeloTabla.addRow(new Object[]{codigo, nombre, producto.getPrecioVenta(), condicion, radioElectronico.isSelected() ? "Electronico" : "Ropa"});
+    }
+
+    private void generarReporte() {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter("reporte_productos.txt"))) {
+        double costoTotal = 0;
+        double precioVentaTotal = 0;
+
+        // Calcular el costo total y el precio de venta total utilizando un ciclo for
+        for (Producto producto : productos) {
+            costoTotal += producto.getPrecioCosto();
+            precioVentaTotal += producto.getPrecioVenta();
+        }
+
+        double gananciaTotal = precioVentaTotal - costoTotal;
+
+        // Escribir el resumen del reporte
+        writer.write("*** Reporte de Productos ***\n");
+        writer.write("Costo Total: " + costoTotal + "\n");
+        writer.write("Precio de Venta Total: " + precioVentaTotal + "\n");
+        writer.write("Ganancia Total: " + gananciaTotal + "\n");
+
+        
+        for (int i = 0; i < productos.size() - 1; i++) {
+            for (int j = 0; j < productos.size() - 1 - i; j++) {
+                if (productos.get(j).getPrecioVenta() > productos.get(j + 1).getPrecioVenta()) {
+                    // Intercambiar productos
+                    Producto temp = productos.get(j);
+                    productos.set(j, productos.get(j + 1));
+                    productos.set(j + 1, temp);
+                }
+            }
+        }
+
+        // Escribir los productos ordenados por precio de venta
+        writer.write("\n*** Productos Ordenados por Precio de Venta ***\n");
+        for (Producto producto : productos) {
+            writer.write(" |Producto:  " + producto.getNombre() + 
+                         " |Descripción:  " + producto.getDescripcion() + 
+                         " |Costo:  " + producto.getPrecioCosto() + 
+                         " |Precio de Venta:  " + producto.getPrecioVenta() +
+                         " |Condicion:  "+ producto.getCondicion());
+        }
+
+    } catch (IOException ex) {
+        ex.printStackTrace();
+    }
+}
+
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new SistemaGestionProductos().setVisible(true));
+    }
+}
